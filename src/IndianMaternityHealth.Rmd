@@ -1,0 +1,45 @@
+---
+title: "IndianMaternityHealth"
+author: "Abhas Saroha"
+date: "10/30/2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require("ggplot2")
+```
+
+### Convert to numeric
+```{r}
+data$col <- as.numeric(gsub("[,\.]", "", data$col))
+```
+
+### Load data
+```{r cars}
+data <- read.csv("../data/rch_ind_mat_hlth-anc-apr_jun-2008_09.csv", stringsAsFactors = FALSE)
+# Rename columns.
+names(data) <- c("Agency", "State/UT", "Need Assessed 2008-09", "Total ANC Reg. 2008-09", "Total ANC Reg. 2007-08", "ANC Reg. Change", "Number Preg. Woman 3 ANC Check-ups", "% Women to total ANC", "% Total ANC reg. of need assessed")
+```
+***
+
+### Validate change information.
+Check that change data is consistent. Years for which either data is NA should have change as NA.
+```{r}
+change_data <- data[,c("Total ANC Reg. 2008-09", "Total ANC Reg. 2007-08", "ANC Reg. Change")]
+change_data[which((is.na(change_data$`Total ANC Reg. 2008-09`) | is.na(change_data$`Total ANC Reg. 2007-08`)) & !is.na(change_data$`ANC Reg. Change`)),]
+```
+Zero rows in above subset of data indicates change data is inconsistent.
+
+***
+
+Check percentage change.
+```{r}
+change_data <- change_data[which(!(is.na(change_data$`Total ANC Reg. 2008-09`) | is.na(change_data$`Total ANC Reg. 2007-08`))),]
+apply(change_data, 1, function(d) { abs(100*(d[1]-d[2])/d[2] - d[3]) })
+```
+Small values in above columns validate given change data.
+
+***
+
+### 
